@@ -5,6 +5,11 @@ _123MR
 12.34
 // commet
 @
+"String Lit"
+'c'
+if
+elif
+else
 214
 12.4323.5
 ;

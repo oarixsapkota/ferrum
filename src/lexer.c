@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char *get_word(const char *buffer, u64 *index, uint *char_num) {
+char *get_word(const char *buffer, u64 *index, uint *char_num) {
   u64 start = *index;
   while (isalnum(buffer[*index]) || buffer[*index] == '_') {
     (*index)++;
@@ -22,14 +22,26 @@ static char *get_word(const char *buffer, u64 *index, uint *char_num) {
   return out_buffer;
 }
 
-static char *get_digit(const char *buffer, u64 *index, uint line_num, uint *char_num) {
+Token_Type get_word_type(const char *word) {
+  if (!strcmp("if", word)) {
+    return IDENTIFIER;
+  } else if (!strcmp("elif", word)) {
+    return IDENTIFIER;
+  } else if (!strcmp("else", word)) {
+    return IDENTIFIER;
+  } else {
+    return IDENTIFIER;
+  }
+}
+
+char *get_digit(const char *buffer, u64 *index, uint line_num, uint *char_num, uint *is_float) {
   u64 start = *index;
-  uint is_float = 0;
+  *is_float = 0;
   while (isdigit(buffer[*index]) || buffer[*index] == '.') {
     if (buffer[*index] == '.') {
-      is_float++;
+      (*is_float)++;
     }
-    if (is_float >= 2) {
+    if (*is_float >= 2) {
       printf("Invalid symbol `.' at line %d char %d\n", line_num, *char_num);
       break;
     }
@@ -47,13 +59,13 @@ static char *get_digit(const char *buffer, u64 *index, uint line_num, uint *char
   return out_buffer;
 }
 
-void push_token(Token **head, Token **tail, u64 line_num, char *value) {
+void push_token(Token **head, Token **tail, Token_Type type, char *value) {
   Token *new_token = malloc(sizeof(Token));
   if (!new_token) {
     perror("malloc failed");
     exit(-1);
   }
-  new_token->line_num = line_num;
+  new_token->type = type;
   new_token->value = value;
   new_token->next = NULL;
 
@@ -81,19 +93,24 @@ Token *lexer(const char *buffer) {
       index++;
       char_num++;
     } else if (isdigit(buffer[index]) || buffer[index] == '.') {
-      char *digit = get_digit(buffer, &index, line_num, &char_num);
-      push_token(&head, &tail, line_num, digit);
+      uint is_float;
+      char *digit = get_digit(buffer, &index, line_num, &char_num, &is_float);
+      Token_Type type = (is_float >= 1) ? FLOAT_LIT : INT_LIT;
+      push_token(&head, &tail, type, digit);
     } else if (isalpha(buffer[index]) || buffer[index] == '_') {
       char *word = get_word(buffer, &index, &char_num);
-      push_token(&head, &tail, line_num, word);
+      Token_Type type = get_word_type(word);
+      if (type != IDENTIFIER) {
+        free(word);
+        word = NULL;
+        push_token(&head, &tail, type, word);
+      } else if (type == IDENTIFIER) {
+        push_token(&head, &tail, IDENTIFIER, word);
+      }
     } else if (buffer[index] == '/' && buffer[index + 1] == '/') {
       while (buffer[index] != '\n') {
         index++;
       }
-    } else if (buffer[index] == '@') {
-      push_token(&head, &tail, line_num, NULL);
-      index++;
-      char_num++;
     } else {
       printf("Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
       char_num++;
@@ -106,7 +123,22 @@ Token *lexer(const char *buffer) {
 void print_tokens(Token *token) {
   while (token) {
     Token *next = token->next;
-    printf("%s\n", token->value);
+    switch (token->type) {
+      case 0:
+        printf("%s\nTOKEN : UNKNOWN\n", token->value);
+        break;
+      case IDENTIFIER:
+        printf("%s\nTOKEN : IDENTIFIER\n", token->value);
+        break;
+      case INT_LIT:
+        printf("%s\nTOKEN : INT_LIT\n", token->value);
+        break;
+      case FLOAT_LIT:
+        printf("%s\nTOKEN : FLOAT_LIT\n", token->value);
+        break;
+      default:
+        break;
+    }
     token = next;
   }
 }

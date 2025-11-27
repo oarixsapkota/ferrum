@@ -1,6 +1,6 @@
 # Ferrum
 
-**Ferrum C** is a `C` project templet for a simple `C` projects. 
+**Ferrum C** is a programming lang written in `C99`. 
 
 ---
 

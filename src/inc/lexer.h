@@ -5,9 +5,17 @@
 
 #include <stddef.h>
 
+typedef enum {
+  UNKNOWN = 0,
+  IDENTIFIER = 1,
+  
+  FLOAT_LIT,
+  INT_LIT
+} Token_Type;
+
 typedef struct Token Token;
 struct Token {
-  u64 line_num;
+  Token_Type type;
   char *value;
   Token *next;
 };
