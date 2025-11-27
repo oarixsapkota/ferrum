@@ -1,0 +1,57 @@
+# ----------------------------
+# Clang-Format Configuration
+# ----------------------------
+
+Language: C
+BasedOnStyle: LLVM
+
+# --- Indentation ---
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+IndentCaseLabels: true
+
+# --- Braces and Layout ---
+BreakBeforeBraces: Attach
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# --- Spacing ---
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesInCStyleCastParentheses: false
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+
+# --- Alignment ---
+AlignAfterOpenBracket: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: false
+AlignTrailingComments: true
+DerivePointerAlignment: false
+PointerAlignment: Right
+
+# --- Includes ---
+IncludeBlocks: Regroup
+SortIncludes: true
+SortUsingDeclarations: true
+
+# --- Wrapping ---
+ColumnLimit: 999
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+
+# --- Misc ---
+ReflowComments: true
+Cpp11BracedListStyle: true
+CommentPragmas: '^ IWYU pragma:'
+
+# --- Preprocessor ---
+IndentPPDirectives: AfterHash
