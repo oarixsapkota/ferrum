@@ -111,7 +111,7 @@ char *get_char_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num)
   return out;
 }
 
-void push_token(Token **head, Token **tail, Token_Type type, char *value) {
+void push_token(Token **tail, Token_Type type, char *value) {
   Token *new_token = malloc(sizeof(Token));
   if (!new_token) {
     fprintf(stderr, "Memory allocation failed.\n");
@@ -123,8 +123,6 @@ void push_token(Token **head, Token **tail, Token_Type type, char *value) {
 
   if (*tail) {
     (*tail)->next = new_token;
-  } else {
-    *head = new_token;
   }
   *tail = new_token;
 }
@@ -133,9 +131,16 @@ Token *lexer(const char *buffer) {
   u64 index = 0;
   u64 line_num = 1;
   uint char_num = 1;
-  Token *head = NULL;
-  Token *tail = NULL;
+  Token *head = malloc(sizeof(Token));
+  if (!head) {
+    fprintf(stderr, "Memory allocation failed.\n");
+    exit(EXIT_FAILURE);
+  }
+  head->type = 0;
+  head->value = NULL;
+  head->next = NULL;
 
+  Token *tail = head;
   while (buffer[index] != '\0') {
     if (buffer[index] == '\n') {
       line_num++;
@@ -150,27 +155,27 @@ Token *lexer(const char *buffer) {
       Token_Type type = (is_float >= 1) ? FLOAT_LIT : INT_LIT;
       if (is_float >= 999)
         type = UNKNOWN;
-      push_token(&head, &tail, type, digit);
+      push_token(&tail, type, digit);
     } else if (isalpha(buffer[index]) || buffer[index] == '_') {
       char *word = get_word(buffer, &index, &char_num);
       Token_Type type = get_word_type(word);
       if (type != IDENTIFIER) {
         free(word);
         word = NULL;
-        push_token(&head, &tail, type, word);
+        push_token(&tail, type, word);
       } else if (type == IDENTIFIER) {
         if (buffer[index] == ':') {
-          push_token(&head, &tail, LABEL, word);
+          push_token(&tail, LABEL, word);
         } else {
-          push_token(&head, &tail, type, word);
+          push_token(&tail, type, word);
         }
       }
     } else if (buffer[index] == '\'') {
       char *char_lit = get_char_lit(buffer, &index, &char_num, line_num);
-      push_token(&head, &tail, CHAR_LIT, char_lit);
+      push_token(&tail, CHAR_LIT, char_lit);
     } else if (buffer[index] == '\"') {
       char *str_lit = get_str_lit(buffer, &index, &char_num, line_num);
-      push_token(&head, &tail, STRING_LIT, str_lit);
+      push_token(&tail, STRING_LIT, str_lit);
     } else {
       switch (buffer[index]) {
         case '/':
@@ -180,37 +185,37 @@ Token *lexer(const char *buffer) {
           }
           break;
         case '(':
-          push_token(&head, &tail, O_PREN, NULL);
+          push_token(&tail, O_PREN, NULL);
           index++;
           char_num++;
           break;
         case ')':
-          push_token(&head, &tail, C_PREN, NULL);
+          push_token(&tail, C_PREN, NULL);
           index++;
           char_num++;
           break;
         case '{':
-          push_token(&head, &tail, O_SCOPE, NULL);
+          push_token(&tail, O_SCOPE, NULL);
           index++;
           char_num++;
           break;
         case '}':
-          push_token(&head, &tail, C_SCOPE, NULL);
+          push_token(&tail, C_SCOPE, NULL);
           index++;
           char_num++;
           break;
         case ':':
-          push_token(&head, &tail, COLN, NULL);
+          push_token(&tail, COLN, NULL);
           index++;
           char_num++;
           break;
         case ';':
-          push_token(&head, &tail, SEMI_COLN, NULL);
+          push_token(&tail, SEMI_COLN, NULL);
           index++;
           char_num++;
           break;
         case '?':
-          push_token(&head, &tail, EXPECT, NULL);
+          push_token(&tail, EXPECT, NULL);
           index++;
           char_num++;
           break;
@@ -221,7 +226,7 @@ Token *lexer(const char *buffer) {
             index++;
           }
           char *directive = get_word(buffer, &index, &char_num);
-          push_token(&head, &tail, 0, directive);
+          push_token(&tail, 0, directive);
           break;
         default:
           while (isspace(buffer[index]))
