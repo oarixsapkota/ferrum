@@ -59,6 +59,56 @@ char *get_digit(const char *buffer, u64 *index, uint line_num, uint *char_num, u
   return out_buffer;
 }
 
+char *get_str_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num) {
+  (*index)++;
+  u64 start = *index;
+  while (buffer[*index] != '"' && buffer[*index] != '\0' && buffer[*index] != '\n') {
+    (*index)++;
+    (*char_num)++;
+  }
+  if (buffer[*index] == '\0' || buffer[*index] == '\n') {
+    fprintf(stderr, "Unterminated String literal at line %lld char %d.\n", line_num, *char_num);
+    exit(-1);
+  }
+  u64 word_size = *index - start;
+  char *out_buffer = malloc(word_size + 1);
+  if (!out_buffer) {
+    perror("malloc failed");
+    exit(-1);
+  }
+  memcpy(out_buffer, buffer + start, word_size);
+  out_buffer[word_size] = '\0';
+  (*index)++;
+  return out_buffer;
+}
+
+char *get_char_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num) {
+  (*index)++;
+  u64 start = *index;
+  while (buffer[*index] != '\'' && buffer[*index] != '\0' && buffer[*index] != '\n') {
+    (*index)++;
+    (*char_num)++;
+  }
+  if (buffer[*index] == '\0' || buffer[*index] == '\n') {
+    fprintf(stderr, "Unterminated character literal at line %lld char %d.\n", line_num, *char_num);
+    exit(-1);
+  }
+  u64 word_size = *index - start;
+  if (word_size >= 3) {
+    fprintf(stderr, "Character literal too long at line %lld char %d.\n", line_num, *char_num);
+    exit(-1);
+  }
+  char *out_buffer = malloc(word_size + 1);
+  if (!out_buffer) {
+    perror("malloc failed");
+    exit(-1);
+  }
+  memcpy(out_buffer, buffer + start, word_size);
+  out_buffer[word_size] = '\0';
+  (*index)++;
+  return out_buffer;
+}
+
 void push_token(Token **head, Token **tail, Token_Type type, char *value) {
   Token *new_token = malloc(sizeof(Token));
   if (!new_token) {
@@ -89,14 +139,17 @@ Token *lexer(const char *buffer) {
       line_num++;
       char_num = 1;
       index++;
+      continue;
     } else if (isspace(buffer[index])) {
       index++;
       char_num++;
+      continue;
     } else if (isdigit(buffer[index]) || buffer[index] == '.') {
       uint is_float;
       char *digit = get_digit(buffer, &index, line_num, &char_num, &is_float);
       Token_Type type = (is_float >= 1) ? FLOAT_LIT : INT_LIT;
       push_token(&head, &tail, type, digit);
+      continue;
     } else if (isalpha(buffer[index]) || buffer[index] == '_') {
       char *word = get_word(buffer, &index, &char_num);
       Token_Type type = get_word_type(word);
@@ -105,16 +158,27 @@ Token *lexer(const char *buffer) {
         word = NULL;
         push_token(&head, &tail, type, word);
       } else if (type == IDENTIFIER) {
-        push_token(&head, &tail, IDENTIFIER, word);
+        push_token(&head, &tail, type, word);
       }
+      continue;
     } else if (buffer[index] == '/' && buffer[index + 1] == '/') {
       while (buffer[index] != '\n') {
         index++;
       }
+      continue;
+    } else if (buffer[index] == '\'') {
+      char *char_lit = get_char_lit(buffer, &index, &char_num, line_num);
+      push_token(&head, &tail, 0, char_lit);
+      continue;
+    } else if (buffer[index] == '\"') {
+      char *str_lit = get_str_lit(buffer, &index, &char_num, line_num);
+      push_token(&head, &tail, 0, str_lit);
+      continue;
     } else {
-      printf("Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
+      fprintf(stderr, "Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
       char_num++;
       index++;
+      continue;
     }
   }
   return head;
