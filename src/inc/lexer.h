@@ -63,6 +63,12 @@ struct Token {
   Token *next;
 };
 
+typedef struct Keyword Keyword;
+struct Keyword {
+  const char *name;
+  Token_Type type;
+};
+
 Token *lexer(const char *buffer);
 void print_tokens(Token *head);
 void free_tokens(Token *head);

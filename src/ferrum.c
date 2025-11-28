@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 int main() {
-  char *buffer = read_file("test.txt");
+  char *buffer = read_file("test.fe");
   if (buffer == NULL) {
     perror("ERROR WITH FILE :");
     printf(": FILE ERROR!!\n");

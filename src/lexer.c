@@ -5,67 +5,56 @@
 #include <stdlib.h>
 #include <string.h>
 
+char *allocate_sub_string(const char *buffer, u64 start, u64 end) {
+  u64 word_size = end - start;
+  char *out = malloc(word_size + 1);
+  if (!out) {
+    fprintf(stderr, "Memory allocation failed.\n");
+    exit(EXIT_FAILURE);
+  }
+  memcpy(out, buffer + start, word_size);
+  out[word_size] = '\0';
+  return out;
+}
+
 char *get_word(const char *buffer, u64 *index, uint *char_num) {
   u64 start = *index;
   while (isalnum(buffer[*index]) || buffer[*index] == '_') {
     (*index)++;
     (*char_num)++;
   }
-  u64 word_size = *index - start;
-  char *out_buffer = malloc(word_size + 1);
-  if (!out_buffer) {
-    fprintf(stderr, "Memory allocation failed.\n");
-    exit(EXIT_FAILURE);
-  }
-  memcpy(out_buffer, buffer + start, word_size);
-  out_buffer[word_size] = '\0';
-  return out_buffer;
+  return allocate_sub_string(buffer, start, *index);
 }
 
 Token_Type get_word_type(const char *word) {
-  if (!strcmp("void", word)) {
-    return VOID;
-  } else if (!strcmp("NULL", word)) {
-    return NULL_C;
-  } else if (!strcmp("null", word)) {
-    return NULL_S;
-  } else if (!strcmp("bool", word)) {
-    return BOOL;
-  } else if (!strcmp("true", word)) {
-    return TRUE;
-  } else if (!strcmp("char", word)) {
-    return CHAR;
-  } else if (!strcmp("short", word)) {
-    return SHORT;
-  } else if (!strcmp("int", word)) {
-    return INT;
-  } else if (!strcmp("long", word)) {
-    return LONG;
-  } else if (!strcmp("float", word)) {
-    return FLOAT;
-  } else if (!strcmp("double", word)) {
-    return DOUBLE;
-  } else if (!strcmp("signed", word)) {
-    return SIGNED;
-  } else if (!strcmp("unsigned", word)) {
-    return UNSIGNED;
-  } else if (!strcmp("object", word)) {
-    return OBJECT;
-  } else if (!strcmp("func", word)) {
-    return FUNC;
-  } else if (!strcmp("pass", word)) {
-    return PASS;
-  } else if (!strcmp("return", word)) {
-    return RETURN;
-  } else if (!strcmp("if", word)) {
-    return IF;
-  } else if (!strcmp("elif", word)) {
-    return ELIF;
-  } else if (!strcmp("else", word)) {
-    return ELSE;
-  } else {
-    return IDENTIFIER;
+  Keyword keyword[] = {{"void", VOID}, // type
+      {"NULL", NULL_C},                // type
+      {"null", NULL_S},                // type
+      {"bool", BOOL},                  // type
+      {"true", TRUE},                  // type
+      {"false", FALSE},                // type
+      {"char", CHAR},                  // type
+      {"short", SHORT},                // type
+      {"int", INT},                    // type
+      {"long", LONG},                  // type
+      {"float", FLOAT},                // type
+      {"double", DOUBLE},              // type
+      {"signed", SIGNED},              // type
+      {"unsigned", UNSIGNED},          // type
+      {"object", OBJECT},              // type
+      {"func", FUNC},                  // func
+      {"pass", PASS},                  // func
+      {"return", RETURN},              // func
+      {"if", IF},                      // controlflow
+      {"elif", ELIF},                  // controlflow
+      {"else", ELSE}};                 // controlflow
+
+  size_t n_keywords = sizeof(keyword) / sizeof(keyword[0]);
+  for (size_t i = 0; i < n_keywords; ++i) {
+    if (strcmp(word, keyword[i].name) == 0)
+      return keyword[i].type;
   }
+  return IDENTIFIER;
 }
 
 char *get_digit(const char *buffer, u64 *index, u64 line_num, uint *char_num, uint *is_float) {
@@ -87,15 +76,7 @@ char *get_digit(const char *buffer, u64 *index, u64 line_num, uint *char_num, ui
     (*index)++;
     (*char_num)++;
   }
-  u64 word_size = *index - start;
-  char *out_buffer = malloc(word_size + 1);
-  if (!out_buffer) {
-    fprintf(stderr, "Memory allocation failed.\n");
-    exit(EXIT_FAILURE);
-  }
-  memcpy(out_buffer, buffer + start, word_size);
-  out_buffer[word_size] = '\0';
-  return out_buffer;
+  return allocate_sub_string(buffer, start, *index);
 }
 
 char *get_str_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num) {
@@ -109,16 +90,9 @@ char *get_str_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num) 
     fprintf(stderr, "Unterminated String literal at line %lld char %d.\n", line_num, *char_num);
     exit(EXIT_FAILURE);
   }
-  u64 word_size = *index - start;
-  char *out_buffer = malloc(word_size + 1);
-  if (!out_buffer) {
-    fprintf(stderr, "Memory allocation failed.\n");
-    exit(EXIT_FAILURE);
-  }
-  memcpy(out_buffer, buffer + start, word_size);
-  out_buffer[word_size] = '\0';
+  char *out = allocate_sub_string(buffer, start, *index);
   (*index)++;
-  return out_buffer;
+  return out;
 }
 
 char *get_char_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num) {
@@ -132,20 +106,9 @@ char *get_char_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num)
     fprintf(stderr, "Unterminated character literal at line %lld char %d.\n", line_num, *char_num);
     exit(EXIT_FAILURE);
   }
-  u64 word_size = *index - start;
-  if (word_size >= 3) {
-    fprintf(stderr, "Character literal too long at line %lld char %d.\n", line_num, *char_num);
-    exit(EXIT_FAILURE);
-  }
-  char *out_buffer = malloc(word_size + 1);
-  if (!out_buffer) {
-    fprintf(stderr, "Memory allocation failed.\n");
-    exit(EXIT_FAILURE);
-  }
-  memcpy(out_buffer, buffer + start, word_size);
-  out_buffer[word_size] = '\0';
+  char *out = allocate_sub_string(buffer, start, *index);
   (*index)++;
-  return out_buffer;
+  return out;
 }
 
 void push_token(Token **head, Token **tail, Token_Type type, char *value) {
@@ -178,11 +141,9 @@ Token *lexer(const char *buffer) {
       line_num++;
       char_num = 1;
       index++;
-      continue;
     } else if (isspace(buffer[index])) {
       index++;
       char_num++;
-      continue;
     } else if (isdigit(buffer[index]) || (buffer[index] == '.' && isdigit(buffer[index + 1]))) {
       uint is_float;
       char *digit = get_digit(buffer, &index, line_num, &char_num, &is_float);
@@ -190,7 +151,6 @@ Token *lexer(const char *buffer) {
       if (is_float >= 999)
         type = UNKNOWN;
       push_token(&head, &tail, type, digit);
-      continue;
     } else if (isalpha(buffer[index]) || buffer[index] == '_') {
       char *word = get_word(buffer, &index, &char_num);
       Token_Type type = get_word_type(word);
@@ -205,30 +165,19 @@ Token *lexer(const char *buffer) {
           push_token(&head, &tail, type, word);
         }
       }
-      continue;
-    } else if (buffer[index] == '/' && buffer[index + 1] == '/') {
-      while (buffer[index] != '\n')
-        index++;
-      continue;
     } else if (buffer[index] == '\'') {
       char *char_lit = get_char_lit(buffer, &index, &char_num, line_num);
       push_token(&head, &tail, CHAR_LIT, char_lit);
-      continue;
     } else if (buffer[index] == '\"') {
       char *str_lit = get_str_lit(buffer, &index, &char_num, line_num);
       push_token(&head, &tail, STRING_LIT, str_lit);
-      continue;
-    } else if (buffer[index] == '@') {
-      index++;
-      if (!(isalpha(buffer[index]) || buffer[index] == '_')) {
-        fprintf(stderr, "Invalid `@' at line %lld char %d\n", line_num, char_num);
-        index++;
-      }
-      char *directive = get_word(buffer, &index, &char_num);
-      push_token(&head, &tail, 0, directive);
-      continue;
     } else {
-      if (buffer[index] == '(') {
+      if (buffer[index] == '/') {
+        if (buffer[index + 1] == '/') {
+          while (buffer[index] != '\n')
+            index++;
+        }
+      } else if (buffer[index] == '(') {
         push_token(&head, &tail, O_PREN, NULL);
         index++;
         char_num++;
@@ -256,13 +205,20 @@ Token *lexer(const char *buffer) {
         push_token(&head, &tail, EXPECT, NULL);
         index++;
         char_num++;
+      } else if (buffer[index] == '@') {
+        index++;
+        if (!(isalpha(buffer[index]) || buffer[index] == '_')) {
+          fprintf(stderr, "Invalid `@' at line %lld char %d\n", line_num, char_num);
+          index++;
+        }
+        char *directive = get_word(buffer, &index, &char_num);
+        push_token(&head, &tail, 0, directive);
       } else {
         while (isspace(buffer[index]))
           index++;
         fprintf(stderr, "Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
         char_num++;
         index++;
-        continue;
       }
     }
   }
