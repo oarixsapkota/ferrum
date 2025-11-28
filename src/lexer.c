@@ -172,53 +172,64 @@ Token *lexer(const char *buffer) {
       char *str_lit = get_str_lit(buffer, &index, &char_num, line_num);
       push_token(&head, &tail, STRING_LIT, str_lit);
     } else {
-      if (buffer[index] == '/') {
-        if (buffer[index + 1] == '/') {
-          while (buffer[index] != '\n')
+      switch (buffer[index]) {
+        case '/':
+          if (buffer[index + 1] == '/') {
+            while (buffer[index] != '\n')
+              index++;
+          }
+          break;
+        case '(':
+          push_token(&head, &tail, O_PREN, NULL);
+          index++;
+          char_num++;
+          break;
+        case ')':
+          push_token(&head, &tail, C_PREN, NULL);
+          index++;
+          char_num++;
+          break;
+        case '{':
+          push_token(&head, &tail, O_SCOPE, NULL);
+          index++;
+          char_num++;
+          break;
+        case '}':
+          push_token(&head, &tail, C_SCOPE, NULL);
+          index++;
+          char_num++;
+          break;
+        case ':':
+          push_token(&head, &tail, COLN, NULL);
+          index++;
+          char_num++;
+          break;
+        case ';':
+          push_token(&head, &tail, SEMI_COLN, NULL);
+          index++;
+          char_num++;
+          break;
+        case '?':
+          push_token(&head, &tail, EXPECT, NULL);
+          index++;
+          char_num++;
+          break;
+        case '@':
+          index++;
+          if (!(isalpha(buffer[index]) || buffer[index] == '_')) {
+            fprintf(stderr, "Invalid `@' at line %lld char %d\n", line_num, char_num);
             index++;
-        }
-      } else if (buffer[index] == '(') {
-        push_token(&head, &tail, O_PREN, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == ')') {
-        push_token(&head, &tail, C_PREN, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == '{') {
-        push_token(&head, &tail, O_SCOPE, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == '}') {
-        push_token(&head, &tail, C_SCOPE, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == ':') {
-        push_token(&head, &tail, COLN, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == ';') {
-        push_token(&head, &tail, SEMI_COLN, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == '?') {
-        push_token(&head, &tail, EXPECT, NULL);
-        index++;
-        char_num++;
-      } else if (buffer[index] == '@') {
-        index++;
-        if (!(isalpha(buffer[index]) || buffer[index] == '_')) {
-          fprintf(stderr, "Invalid `@' at line %lld char %d\n", line_num, char_num);
+          }
+          char *directive = get_word(buffer, &index, &char_num);
+          push_token(&head, &tail, 0, directive);
+          break;
+        default:
+          while (isspace(buffer[index]))
+            index++;
+          fprintf(stderr, "Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
+          char_num++;
           index++;
-        }
-        char *directive = get_word(buffer, &index, &char_num);
-        push_token(&head, &tail, 0, directive);
-      } else {
-        while (isspace(buffer[index]))
-          index++;
-        fprintf(stderr, "Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
-        char_num++;
-        index++;
+          break;
       }
     }
   }

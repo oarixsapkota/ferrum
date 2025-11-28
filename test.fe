@@ -1,5 +1,5 @@
 @inc "stdio.h"
-// this iasdfg
+// this is a comment
 func main(void) ? int {
   printf("Hello, world!");
   return 0;
