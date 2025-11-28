@@ -7,10 +7,53 @@
 
 typedef enum {
   UNKNOWN = 0,
-  IDENTIFIER = 1,
-  
+
+  IDENTIFIER,
+  LABEL,
+
   FLOAT_LIT,
-  INT_LIT
+  INT_LIT,
+  CHAR_LIT,
+  STRING_LIT,
+  FILE_LIT,
+
+  VOID,
+  NULL_C,
+  NULL_S,
+  BOOL,
+  TRUE,
+  FALSE,
+  CHAR,
+  SHORT,
+  INT,
+  LONG,
+  FLOAT,
+  DOUBLE,
+  SIGNED,
+  UNSIGNED,
+  STRING,
+  OBJECT,
+
+  FUNC,
+  RETURN,
+  PASS,
+  EXIT,
+
+  IF,
+  ELIF,
+  ELSE,
+  WHILE,
+  GUARD,
+  GOTO,
+  GOIF,
+
+  O_PREN,
+  C_PREN,
+  O_SCOPE,
+  C_SCOPE,
+  SEMI_COLN,
+  COLN,
+  EXPECT
 } Token_Type;
 
 typedef struct Token Token;
