@@ -335,6 +335,16 @@ Token *lexer(const char *buffer) {
           index++;
           char_num++;
           break;
+        case '[':
+          push_token(head, &token_tail, O_BBRACK, NULL);
+          index++;
+          char_num++;
+          break;
+        case ']':
+          push_token(head, &token_tail, C_BBRACK, NULL);
+          index++;
+          char_num++;
+          break;
         case '{':
           push_token(head, &token_tail, O_SCOPE, NULL);
           index++;
@@ -360,6 +370,18 @@ Token *lexer(const char *buffer) {
           index++;
           char_num++;
           break;
+        case ',':
+          push_token(head, &token_tail, COMMA, NULL);
+          index++;
+          char_num++;
+          break;
+
+        case '@':
+          push_token(head, &token_tail, DIRECTIVE, NULL);
+          index++;
+          char_num++;
+          break;
+
 
         default:
           fprintf(stderr, "Invalid symbol `%c' at line %lld char %d\n", buffer[index], line_num, char_num);
@@ -559,6 +581,12 @@ void print_tokens(Token *token) {
       case C_PREN:
         printf("C_PREN\n");
         break;
+      case O_BBRACK:
+        printf("O_BBRACK\n");
+        break;
+      case C_BBRACK:
+        printf("C_BBRACK\n");
+        break;
       case O_SCOPE:
         printf("O_SCOPE\n");
         break;
@@ -573,6 +601,9 @@ void print_tokens(Token *token) {
         break;
       case EXPECT:
         printf("EXPECT\n");
+        break;
+      case COMMA:
+        printf("COMMA\n");
         break;
 
       default:

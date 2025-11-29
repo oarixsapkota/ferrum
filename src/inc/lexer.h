@@ -88,9 +88,15 @@ typedef enum {
   C_PREN,
   O_SCOPE,
   C_SCOPE,
+  O_BBRACK,
+  C_BBRACK,
   SEMI_COLN,
   COLN,
-  EXPECT
+  EXPECT,
+  COMMA,
+
+  DIRECTIVE
+
 } Token_Type;
 
 typedef struct Token Token;

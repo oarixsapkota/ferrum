@@ -1,42 +1,9 @@
-+
--
-*
-/
-%
-!
+@inc "file.c"
 
-=
-+=
--=
-*=
-/=
-%=
-!=
-
-==
->
->=
-<
-<=
-
-&&
-and
-||
-or
-
-^
-&
-->
-
-// dot
-.
-1.2
-1.
-.2
-
-// invalid
-`
-.
-#
-~
-|
+func main(void) ? int {
+  // string as array of char
+  char str[] = "Hello, World";
+  char c = '!';
+  printf("%s%c\n", str, c);
+  return 0;
+}
