@@ -1,6 +1,42 @@
-@inc "stdio.h"
-// this is a comment
-func main(void) ? int {
-  printf("Hello, world!");
-  return 0;
-}
++
+-
+*
+/
+%
+!
+
+=
++=
+-=
+*=
+/=
+%=
+!=
+
+==
+>
+>=
+<
+<=
+
+&&
+and
+||
+or
+
+^
+&
+->
+
+// dot
+.
+1.2
+1.
+.2
+
+// invalid
+`
+.
+#
+~
+|

@@ -8,6 +8,11 @@
 typedef enum {
   UNKNOWN = 0,
 
+  INVALID,
+
+  SOT,
+  EOT,
+
   IDENTIFIER,
   LABEL,
 
@@ -46,6 +51,38 @@ typedef enum {
   GUARD,
   GOTO,
   GOIF,
+
+  ADD,
+  SUB,
+  MUL,
+  DEV,
+  MOD,
+  NOT,
+
+  INCRIMENT,
+  DECRIMENT,
+
+  ASSIGN,
+  ADD_EQ,
+  SUB_EQ,
+  MUL_EQ,
+  DEV_EQ,
+  MOD_EQ,
+  NOT_EQ,
+
+  GREATER,
+  SMALLER,
+  GREATER_EQ,
+  SMALLER_EQ,
+  EQUAL,
+
+  AND,
+  OR,
+
+  POINTER,
+  ADDRESS_OF,
+  ARROW,
+  DOT,
 
   O_PREN,
   C_PREN,
