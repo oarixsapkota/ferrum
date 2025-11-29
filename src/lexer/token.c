@@ -113,6 +113,9 @@ void print_tokens(Token *token) {
       case RETURN:
         printf("RETURN\n");
         break;
+      case EXIT:
+        printf("EXIT\n");
+        break;
 
       case ADD:
         printf("ADD\n");

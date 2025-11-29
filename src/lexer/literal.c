@@ -45,6 +45,7 @@ Token_Type get_word_type(const char *word) {
       {"func", FUNC},                  // func
       {"pass", PASS},                  // func
       {"return", RETURN},              // func
+      {"exit", EXIT},                  // builtin
       {"if", IF},                      // controlflow
       {"elif", ELIF},                  // controlflow
       {"else", ELSE},                  // controlflow
