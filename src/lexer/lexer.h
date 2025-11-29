@@ -1,7 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "ferrum.h"
+#include "../inc/ferrum.h"
 
 #include <stddef.h>
 
@@ -113,7 +113,14 @@ struct Keyword {
 };
 
 Token *lexer(const char *buffer);
+
 void print_tokens(Token *head);
 void free_tokens(Token *head);
+
+char *get_word(const char *buffer, u64 *index, uint *char_num);
+Token_Type get_word_type(const char *word);
+char *get_digit(const char *buffer, u64 *index, uint *char_num, u64 line_num, uint *is_float);
+char *get_char_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num);
+char *get_str_lit(const char *buffer, u64 *index, uint *char_num, u64 line_num);
 
 #endif

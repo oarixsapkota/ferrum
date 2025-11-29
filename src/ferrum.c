@@ -1,5 +1,5 @@
-#include "inc/lexer.h"
 #include "inc/utils.h"
+#include "lexer/lexer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,5 +23,5 @@ int main() {
   return 0;
 }
 
-#include "lexer.c"
+#include "lexer/lexer.c"
 #include "utils.c"
